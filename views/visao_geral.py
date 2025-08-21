@@ -25,6 +25,19 @@ mun_ope_pipa = mun_ope_pipa[mun_ope_pipa['Situacao'].notna()]
 
 col01, col02 = st.columns(2, gap='large')
 
+municipio = st.sidebar.selectbox(
+    'Selecione um Município',
+    options=mun_estiagem['mun'].unique(),
+    index=None,
+    placeholder='Selecione um município',
+    help='Selecione um município para visualizar os dados específicos.')
+
+if municipio:
+    mun_estiagem = mun_estiagem[mun_estiagem['mun'] == municipio]
+    mun_ope_pipa = mun_ope_pipa[mun_ope_pipa['mun'] == municipio]
+
+else:
+    st.warning("Nenhum dado de operação de carro pipa encontrado para este município.")
 
 
 with col01:
