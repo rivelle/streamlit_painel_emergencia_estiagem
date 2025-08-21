@@ -36,9 +36,6 @@ if municipio:
     mun_estiagem = mun_estiagem[mun_estiagem['mun'] == municipio]
     mun_ope_pipa = mun_ope_pipa[mun_ope_pipa['mun'] == municipio]
 
-else:
-    st.warning("Nenhum dado de operação de carro pipa encontrado para este município.")
-
 
 with col01:
     with st.container(border=True, gap='small'):
@@ -112,7 +109,10 @@ with col03:
 
 with col04:
     st.subheader("Municípios Operação Carro Pipa")
-    st.write(mun_ope_pipa)
+    if mun_ope_pipa.empty:
+        st.warning("Nenhum dado de operação de carro pipa encontrado para este município.")
+    else:
+        st.write(mun_ope_pipa)
 
 
 
