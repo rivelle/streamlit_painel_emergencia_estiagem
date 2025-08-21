@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import geopandas as gpd
 from streamlit_folium import st_folium
+from streamlit_extras.metric_cards import style_metric_cards
 import folium
 import plotly.express as px
 import plotly.graph_objects as go
@@ -17,12 +18,88 @@ st.divider()
 
 mun_estiagem = gpd.read_file('dados/dados.gpkg', leayer='mun_estiagem')
 mun_estiagem = mun_estiagem[mun_estiagem['Situaçăo'] == 'Situaçăo de Emergęncia']
+mun_estiagem['cod_situacao'] = 1
 
 mun_ope_pipa = gpd.read_file('dados/dados.gpkg', layer='mun_operacaopipa')
-mun_ope_pipa = mun_ope_pipa[mun_ope_pipa['Situacao'].notnull()]
+mun_ope_pipa = mun_ope_pipa[mun_ope_pipa['Situacao'].notna()]
+
+col01, col02 = st.columns(2, gap='large')
 
 
-st.write(mun_estiagem)
-st.write(mun_ope_pipa)
+
+with col01:
+    with st.container(border=True, gap='small'):
+        with st.spinner('Gerando mapas e gráficos...'):
+                map_container = st.empty()
+                mapa = mapa_bahia(mun_estiagem, atributo='cod_situacao', title='Municípios em Situação de Emergência Estiagem')
+                map_container.empty()  # Limpa container antes de renderizar
+                st_folium(mapa, use_container_width=True, height=1080)
+
+    
+
+with col02:
+    col02a, col02b = st.columns(2, gap='large')
+    with col02a:
+        st.metric(label="Total de Municípios em Situação de Emergência Estiagem", value=len(mun_estiagem))
+        st.metric(label="Total de Pipeiros", value=mun_ope_pipa['Pipeiros'].sum())
+        
+
+
+    with col02b:
+        st.metric(label="Total de Municípios com Operação Pipa", value=len(mun_ope_pipa))
+        st.metric(label="População Atendida Carros Pipa", value=mun_ope_pipa['Populacao'].sum())
+
+
+    st.plotly_chart(
+            px.bar(
+                mun_ope_pipa,
+                x='mun',
+                y='Pipeiros',
+                orientation='v',
+                title='Pipeiros por Município',
+                labels={'Pipeiros': 'Número de Pipeiros', 'mun': 'Município'},
+                color='Pipeiros',
+                color_continuous_scale=px.colors.sequential.Plasma
+            ),
+            use_container_width=True
+        )
+    st.plotly_chart(
+            px.bar(
+                mun_ope_pipa,
+                x='mun',
+                y='Populacao',
+                orientation='v',
+                title='População Atendida por Carros Pipa por Município',
+                labels={'Populacao': 'População Atendida', 'mun': 'Município'},
+                color='Populacao',
+                color_continuous_scale=px.colors.sequential.Plasma
+            ),
+            use_container_width=True
+        )
+    
+
+    style_metric_cards(
+        {
+            "label_font_size": "1.2rem",
+            "value_font_size": "1.5rem",
+            "card_background_color": "#f0f0f0",
+            "card_border_radius": "10px",
+            "card_padding": "20px",
+            "card_margin": "10px"
+        }
+    )    
+        
+
+col03, col04 = st.columns(2, gap='large')
+
+with col03:
+    st.subheader("Municípios em Situação de Emergência Estiagem")
+    st.write(mun_estiagem)
+
+
+with col04:
+    st.subheader("Municípios Operação Carro Pipa")
+    st.write(mun_ope_pipa)
+
 
 

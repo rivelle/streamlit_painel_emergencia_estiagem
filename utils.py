@@ -106,10 +106,10 @@ def mapa_bahia(df, atributo, title):
         location=[-13.325673, -42.063333],
         tiles='cartodbpositron',
         position='relative',
-        prefer_canvas=True,
+        prefer_canvas=False,
         control_scale=True,
         zoom_control=False,
-        zoom_start=6,
+        zoom_start=7,
         min_zoom=3,
         max_zoom=8,
         zoom_delta=0.5,
@@ -117,7 +117,8 @@ def mapa_bahia(df, atributo, title):
         max_bounds_style='circle',
         dragging=True,
         scrollWheelZoom=True,
-        attribution_control=True,        
+        attribution_control=True,
+              
     )
     folium.Choropleth(
         geo_data=geojson,
