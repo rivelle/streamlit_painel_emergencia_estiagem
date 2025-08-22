@@ -24,10 +24,10 @@ mun_estiagem['cod_situacao'] = 1
 mun_ope_pipa = gpd.read_file('dados/dados.gpkg', layer='mun_operacaopipa')
 mun_ope_pipa = mun_ope_pipa[mun_ope_pipa['Situacao'].notna()]
 
-pocos_agua = gpd.read_file('/home/rivelle/03-CEPEX/00-Projetos/2505-MEE/Dev/painel/dados/csv/pocos_agua_potavel_cerb.csv')
+pocos_agua = gpd.read_file('dados/csv/pocos_agua_potavel_cerb.csv')
 pocos_agua = pocos_agua.rename(columns={'município': 'mun'})
 
-pocos_agua_animal = gpd.read_file('/home/rivelle/03-CEPEX/00-Projetos/2505-MEE/Dev/painel/dados/csv/pocos_dessend_animal_cerb.csv')
+pocos_agua_animal = gpd.read_file('dados/csv/pocos_dessend_animal_cerb.csv')
 pocos_agua_animal = pocos_agua_animal.rename(columns={'MUNICÍPIO': 'mun'})
 
 col01, col02 = st.columns([5.5, 6], gap='small')
