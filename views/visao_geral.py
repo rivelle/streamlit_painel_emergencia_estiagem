@@ -7,6 +7,7 @@ import folium
 import plotly.express as px
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
+import mapclassify
 
 from utils import mapa_bahia
 
@@ -23,7 +24,14 @@ mun_estiagem['cod_situacao'] = 1
 mun_ope_pipa = gpd.read_file('dados/dados.gpkg', layer='mun_operacaopipa')
 mun_ope_pipa = mun_ope_pipa[mun_ope_pipa['Situacao'].notna()]
 
-col01, col02 = st.columns(2, gap='large')
+col01, col02 = st.columns([5.5, 6], gap='small')
+
+territorio = st.sidebar.selectbox(
+    'Selecione um Território',
+    options=mun_estiagem['territorio'].unique(),
+    index=None,
+    placeholder='Selecione um território',
+    help='Selecione um território para filtrar os municípios.')
 
 municipio = st.sidebar.selectbox(
     'Selecione um Município',
@@ -32,33 +40,23 @@ municipio = st.sidebar.selectbox(
     placeholder='Selecione um município',
     help='Selecione um município para visualizar os dados específicos.')
 
+if territorio:
+    mun_estiagem = mun_estiagem[mun_estiagem['territorio'] == territorio]
+    mun_ope_pipa = mun_ope_pipa[mun_ope_pipa['territorio'] == territorio]
+
 if municipio:
     mun_estiagem = mun_estiagem[mun_estiagem['mun'] == municipio]
     mun_ope_pipa = mun_ope_pipa[mun_ope_pipa['mun'] == municipio]
 
 
 with col01:
+    st.subheader("Municípios em Situação de Emergência Estiagem")
     with st.container(border=True, gap='small'):
         with st.spinner('Gerando mapas e gráficos...'):
                 map_container = st.empty()
-                mapa = mapa_bahia(mun_estiagem, atributo='cod_situacao', title='Municípios em Situação de Emergência Estiagem')
+                mapa = mapa_bahia(mun_estiagem, atributo='cod_situacao', zoom=7, title='Municípios em Situação de Emergência Estiagem')
                 map_container.empty()  # Limpa container antes de renderizar
-                st_folium(mapa, use_container_width=True, height=1080)
-
-    
-
-with col02:
-    col02a, col02b = st.columns(2, gap='large')
-    with col02a:
-        st.metric(label="Total de Municípios em Situação de Emergência Estiagem", value=len(mun_estiagem))
-        st.metric(label="Total de Pipeiros", value=mun_ope_pipa['Pipeiros'].sum())
-        
-
-
-    with col02b:
-        st.metric(label="Total de Municípios com Operação Pipa", value=len(mun_ope_pipa))
-        st.metric(label="População Atendida Carros Pipa", value=mun_ope_pipa['Populacao'].sum())
-
+                st_folium(mapa, use_container_width=True, height=950)
 
     st.plotly_chart(
             px.bar(
@@ -73,6 +71,42 @@ with col02:
             ),
             use_container_width=True
         )
+
+    
+
+with col02:
+    st.subheader("Indicadores Gerais")
+    col02a, col02b = st.columns(2, gap='small')
+    with col02a:
+        with st.container(border=True, gap='small'):
+            with st.spinner('Gerando mapas e gráficos...'):
+                    map_container = st.empty()
+                    mapa = mapa_bahia(mun_estiagem, atributo='est_agricf', zoom=6, title='Estabelecimentos Familiares por Município')
+                    map_container.empty()  # Limpa container antes de renderizar
+                    st_folium(mapa, use_container_width=True, height=500)       
+        st.metric(label="Total de Municípios em Situação de Emergência Estiagem", value=len(mun_estiagem))
+        st.metric(label="Total de Pipeiros", value=mun_ope_pipa['Pipeiros'].sum())
+        st.metric(label="Total Estabelecimentos Agropecuários", value=mun_estiagem['est_agrico'].sum())
+
+        
+        
+
+
+    with col02b:
+        with st.container(border=True, gap='small'):
+            with st.spinner('Gerando mapas e gráficos...'):
+                    map_container = st.empty()
+                    mapa = mapa_bahia(mun_ope_pipa, atributo='Pipeiros', zoom=6, title='Número de Pipeiros por Município')
+                    map_container.empty()  # Limpa container antes de renderizar
+                    st_folium(mapa, use_container_width=True, height=500)
+
+        st.metric(label="Total de Municípios com Operação Pipa", value=len(mun_ope_pipa))
+        st.metric(label="População Atendida Carros Pipa", value=mun_ope_pipa['Populacao'].sum())
+        st.metric(label="Total de Estabelecimentos Familiares", value=mun_estiagem['est_agricf'].sum())
+
+        
+
+    
     st.plotly_chart(
             px.bar(
                 mun_ope_pipa,
@@ -109,10 +143,13 @@ with col03:
 
 with col04:
     st.subheader("Municípios Operação Carro Pipa")
+    if territorio and mun_ope_pipa.empty:
+        st.warning("Nenhum dado de operação de carro pipa encontrado para este território.")
     if mun_ope_pipa.empty:
         st.warning("Nenhum dado de operação de carro pipa encontrado para este município.")
     else:
         st.write(mun_ope_pipa)
 
+    
 
 

@@ -63,7 +63,7 @@ def mapa_brasil(df, atributo, title):
         prefer_canvas=True,
         control_scale=True,
         zoom_control=False,
-        zoom_start=4,
+        zoom_start=3,
         min_zoom=3,
         max_zoom=8,
         zoom_delta=0.5,
@@ -100,7 +100,7 @@ def load_geojson_ba():
     return bahia
 
 
-def mapa_bahia(df, atributo, title):
+def mapa_bahia(df, atributo, zoom, title):
     geojson = load_geojson_ba()
     m = folium.Map(
         location=[-13.325673, -42.063333],
@@ -109,7 +109,7 @@ def mapa_bahia(df, atributo, title):
         prefer_canvas=False,
         control_scale=True,
         zoom_control=False,
-        zoom_start=7,
+        zoom_start=zoom,
         min_zoom=3,
         max_zoom=8,
         zoom_delta=0.5,
@@ -118,6 +118,7 @@ def mapa_bahia(df, atributo, title):
         dragging=True,
         scrollWheelZoom=True,
         attribution_control=True,
+
               
     )
     folium.Choropleth(
@@ -127,8 +128,37 @@ def mapa_bahia(df, atributo, title):
         key_on='feature.properties.mun',
         fill_color='OrRd',
         fill_opacity=0.8,
+        line_weight=0.1,
+        line_color='black',
         legend_name=f'{title}',
-        smooth_factor=0.1
+        smooth_factor=0.1,
+        nan_fill_color='white',
     ).add_to(m)  
+
+    estilo = lambda x: {
+        'fillColor': 'white',
+        'color': 'black',
+        'fillOpacity': 0.001,
+        'weight': 0.5
+    }
+    estilo_destaque = lambda x: {
+        'fillColor': 'yellow',
+        'color': 'black',
+        'fillOpacity': 0.5,
+        'weight': 1.5
+    }
+
+    highlight = folium.features.GeoJson(data=geojson,
+                                        style_function=estilo,
+                                        highlight_function=estilo_destaque,
+    )
+
+    folium.features.GeoJsonTooltip(
+        fields=['mun', 'TER_IDENT'],
+        aliases=['Município:', 'Território:'],
+        localize=True,
+    ).add_to(highlight)
+
+    m.add_child(highlight)
 
     return m
