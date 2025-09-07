@@ -11,19 +11,22 @@ home = st.Page(
     default=True
 )
 
-visao_geral = st.Page(
-    page = 'views/visao_geral.py',
-    title = 'Panorama Geral',
-    icon = '📊'
+# visao_geral = st.Page(
+#     page = 'views/visao_geral.py',
+#     title = 'Panorama Geral',
+#     icon = '📊'
+# )
+
+mapas = st.Page(
+    page = 'views/mapas.py',
+    title = 'Mapa Geral',
+    icon = '🌐'
 )
-
-
-
 
 
 pg = st.navigation(
     {
-        "Principal":[home, visao_geral]
+        "Principal":[home, mapas]
     }
 )
 

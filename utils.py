@@ -162,3 +162,190 @@ def mapa_bahia(df, atributo, zoom, title):
     m.add_child(highlight)
 
     return m
+
+
+def mapa_geral(df1, df2):
+    geojson = load_geojson_ba()
+    mun_estiagem = gpd.read_file('dados/dados.gpkg', leayer='mun_estiagem')
+    mun_estiagem = mun_estiagem[mun_estiagem['Situaçăo'] == 'Situaçăo de Emergęncia']
+    mun_estiagem['cod_situacao'] = 1
+
+    m = folium.Map(
+        location=[-13.325673, -42.063333],
+        tiles='openstreetmap',
+        position='relative',        
+        control_scale=True,
+        zoom_control='bottomleft',
+        zoom_start=7,
+        zoom_delta=0.5,
+        max_bounds=True,
+        max_bounds_style='circle',
+        dragging=True,
+        scrollWheelZoom=True,
+        attribution_control=True)
+    
+    base_mun = folium.Choropleth(
+         geo_data=geojson,
+         fill_color='white',
+         fill_opacity=0.1,
+         line_color='gray',
+         line_weight=0.5,
+         nan_fill_color='white',
+         nan_fill_opacity=0,
+         control=False,
+         legend_name='Limites Municipais'
+    )
+    m.add_child(base_mun)
+    
+    mun_estiagem = folium.Choropleth(
+        geo_data=geojson,
+        data=df1,
+        columns=['mun', 'cod_situacao'],
+        key_on='feature.properties.mun',
+        fill_color='Reds',
+        fill_opacity=1,
+        line_weight=0.3,
+        line_color='black',
+        name='Municípios em Emergência Estiagem',
+        smooth_factor=0.1,
+        nan_fill_color='white',
+        nan_fill_opacity=0,
+        show=True,
+    ).add_to(m)
+
+    est_fam = folium.Choropleth(
+        geo_data=geojson,
+        data=df2,
+        columns=['mun', 'est_agricf'],
+        key_on='feature.properties.mun',
+        fill_color='OrRd',
+        fill_opacity=1,
+        line_weight=0.3,
+        line_color='black',
+        name='Estabelecimentos Familiares por Município',
+        legend_name=f'Estabelecimentos Familiares por Município',
+        smooth_factor=0.1,
+        nan_fill_color='white',
+        nan_fill_opacity=0,
+        show=False,
+    ).add_to(m)
+
+
+    percent_est_fam = folium.Choropleth(
+        geo_data=geojson,
+        data=df2,
+        columns=['mun', 'percent_fam'],
+        key_on='feature.properties.mun',
+        fill_color='YlOrBr',
+        fill_opacity=1,
+        line_weight=0.3,
+        line_color='black',
+        name='Percentual de Estabelecimentos Familiares por Município',
+        legend_name='Percentual de Estabelecimentos Familiares por Município',
+        smooth_factor=0.1,
+        nan_fill_color='white',
+        nan_fill_opacity=0,
+        show=False,        
+    ).add_to(m)
+
+    folium.LayerControl(
+        position='topleft',
+        collapsed=False,
+        draggable=True,
+    ).add_to(m)
+
+    # legenda_mapa = """
+    # {% macro html(this,kwargs) %}
+    #     <div style = "position: fixed;
+    #     bottom: 20px;
+    #     left: 1600px;
+    #     width: 300px;
+    #     height: 500px;
+    #     font-size: 14px;
+    #     z-index: 9999;        
+    #     ">
+
+    #     <h6><a style = "color: black; margin-left: 10px"><b>Legenda</b></a></h6>
+
+    #     <p><a style = "color: OrRd; margin-left: 10px">&FilledSmallSquare;Estabelecimentos Familiares</a></p>
+    #     </div>
+
+    #     <div style = "position: fixed;
+    #     bottom: 20px;
+    #     left: 1600px;
+    #     width: 300px;
+    #     height: 500px;
+    #     font-size: 14px;
+    #     background-color: white;
+    #     z-index: 9998;
+    #     opacity: 0.6;
+    #     border: 2px solid gray;
+    #     border-radius: 10px;
+    #     ">
+    #     </div>
+
+    # {% endmacro %}
+    # """
+    # legenda = branca.element.MacroElement()
+    # legenda._template = branca.element.Template(legenda_mapa)
+
+    # m.add_child(legenda)
+
+    return m
+
+
+def mapa_op_carropipa(df):
+    geojson = load_geojson_ba()
+    m = folium.Map(
+        location=[-13.325673, -42.063333],
+        tiles='openstreetmap',
+        position='relative',        
+        control_scale=True,
+        zoom_control='bottomleft',
+        zoom_start=7,
+        zoom_delta=0.5,
+        max_bounds=True,
+        max_bounds_style='circle',
+        dragging=True,
+        scrollWheelZoom=True,
+        attribution_control=True)
+    
+    base_mun = folium.Choropleth(
+         geo_data=geojson,
+         fill_color='white',
+         fill_opacity=0.1,
+         line_color='gray',
+         line_weight=0.5,
+         nan_fill_color='white',
+         nan_fill_opacity=0,
+         control=False,
+         legend_name='Limites Municipais'
+    )
+    m.add_child(base_mun)
+    
+    
+    op_carropipa = folium.Choropleth(
+        geo_data=geojson,
+        data=df,
+        columns=['mun', 'Populacao'],
+        key_on='feature.properties.mun',
+        fill_color='RdYlBu',
+        fill_opacity=1,
+        line_weight=0.3,
+        line_color='black',
+        name='Status Operação Carro Pipa nos Municípios',
+        legend_name='Status Operação Carro Pipa nos Municípios',
+        smooth_factor=0.1,
+        nan_fill_color='white',
+        nan_fill_opacity=0,
+        show=True,
+    ).add_to(m)
+
+
+    folium.LayerControl(
+        position='topleft',
+        collapsed=False,
+        draggable=False,
+    ).add_to(m)
+
+    return m
