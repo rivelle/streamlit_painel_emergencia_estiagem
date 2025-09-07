@@ -102,11 +102,11 @@ if territorio:
 
     
 municipio = st.sidebar.selectbox(
-    'Selecione um Município',
+    'Selecione um Município em Emergência',
     options=mun_estiagem['mun'].unique(),
     index=None,
     placeholder='Selecione um município',
-    help='Selecione um município para visualizar os dados específicos.')    
+    help='Selecione um município em situação de emergÊncia para visualizar os dados específicos.')    
 
 if municipio:
     mun_estiagem = mun_estiagem[mun_estiagem['mun'] == municipio]
